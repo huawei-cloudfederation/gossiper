@@ -9,7 +9,7 @@ import (
 
 func PerformIntersection() {
 
-	log.Printf("PerformIntersection() Started ")
+	//log.Printf("PerformIntersection() Started ")
 	FrmWrkLck.Lock()
 	CommonFramework = make(map[string]bool)
 	for mk, mv := range AllFrameworks {
@@ -44,8 +44,8 @@ func PerformIntersection() {
 		}
 	}
 	common.ToAnon.Lck.Unlock()
-	log.Printf("PerformIntersection() Finished")
-	common.ToAnon.Ch <- true
+	//log.Printf("PerformIntersection() Finished")
+	//common.ToAnon.Ch <- true
 }
 
 func ExamineFramework() {
@@ -54,13 +54,14 @@ func ExamineFramework() {
 			<-time.After(time.Second * 1)
 			log.Printf("Dump AllFramework %v", AllFrameworks)
 			log.Printf("Dump CommonFramework %v", CommonFramework)
+			common.ToAnon.Ch <- true
 		}
 	}()
 
 	for {
 		select {
-		case <-time.After(time.Microsecond * 100):
-			log.Printf("Performing intersection")
+		case <-time.After(time.Millisecond * 100):
+			//log.Printf("Performing intersection")
 			PerformIntersection()
 		}
 	}
