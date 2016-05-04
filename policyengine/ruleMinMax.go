@@ -13,7 +13,7 @@ const (
 )
 
 type RuleMinMax struct {
-	MinOrMax string
+	MinOrMax string `json:"MinOrMax"`
 }
 
 //this function can be put int the common code

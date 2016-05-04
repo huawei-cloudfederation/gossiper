@@ -17,24 +17,20 @@ type RuleInterface interface {
 // A Group of rules which forms a policy
 //
 type Policy struct {
-	Name  string //name of the policy which will be the key in our case
-	Rules []Rule
+	Name  string `json:"Name"` //name of the policy which will be the key in our case
+	Rules []Rule `json:"Rules"`
 }
 
 //Rule are applied based on the rule priority
 //it represents one single rule
 // Note: If all the rules have the same priority picks the one which our sort function returns.
 type Rule struct {
-	Name string //this should hold the name of the datatype/struct which will be used to
+	Name string `json:"Name"` //this should hold the name of the datatype/struct which will be used to
 	//instiantiate the type
 
-	Priority int         // it should be between 1-10 this 10 being highest
-	Scope    string      // global scope/local scope
-	Content  interface{} // this represt the actual data for the rule, this can be of any type
-}
-
-type FakeJsonRuleContent struct {
-	Content interface{} // this represt the actual data for the rule, this can be of any type
+	Priority int         `json:"Priority"`        // it should be between 1-10 this 10 being highest
+	Scope    string      `json:"Scope,omitempty"` // global scope/local scope
+	Content  interface{} `json:"Content"`         // this represt the actual data for the rule, this can be of any type
 }
 
 type PolicyDecision struct {
@@ -59,40 +55,27 @@ func (this *PE) ProcessNewPolicy(key string, data []byte) (*Policy, error) {
 	}
 
 	for index, values := range tempPolicy.Rules {
-
 		switch values.Name {
 		case "MinMax":
 			tempPolicy.Rules[index].Content = &RuleMinMax{}
 		case "Threshold":
 			tempPolicy.Rules[index].Content = &RuleThreshold{}
 
-			if tempPolicy.Rules[index].Name == "Threshold" {
-				log.Println("ProcessNewPolicy: Got a new RuleThreshold")
-				lruleThershold, ok := tempPolicy.Rules[index].Content.(RuleThreshold)
-				if ok {
-					common.ResourceThresold = lruleThershold.RecosurceLimit
-					log.Println("ProcessNewPolicy: The new Threshold is ", common.ResourceThresold)
-				} else {
-					log.Println("ProcessNewPolicy: Unable to process a new RuleThreshold")
-				}
-			}
 		}
 	}
-
 	err = json.Unmarshal(data, &tempPolicy)
 	if err != nil {
 		log.Println("processNewPolicy: Unable to get the content from the json")
 		return nil, err
 	}
-	log.Println("processNewPolicy: info", tempPolicy)
 
 	for index := range tempPolicy.Rules {
 		if tempPolicy.Rules[index].Name == "Threshold" {
 			log.Println("ProcessNewPolicy: Got a new RuleThreshold")
-			lruleThershold, ok := tempPolicy.Rules[index].Content.(*RuleThreshold)
+			ruleThershold, ok := tempPolicy.Rules[index].Content.(RuleInterface)
 			if ok {
-				common.ResourceThresold = lruleThershold.RecosurceLimit
-				log.Println("ProcessNewPolicy: The new Threshold is ", common.ResourceThresold)
+				ruleThershold.ApplyRule(nil)
+				log.Println("ProcessNewPolicy: The new Threshold is ", common.ResourceThresold, ruleThershold)
 			} else {
 				log.Println("ProcessNewPolicy: Unable to process a new RuleThreshold")
 			}

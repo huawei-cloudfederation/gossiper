@@ -77,14 +77,13 @@ func (this *PE) UpdatePolicyFromDS(config *common.ConsulConfig) {
 
 		if ok && (this.Current_DS_Index < resultingIndex) {
 
-			this.Lck.Lock()
-
 			if config.IsLeader == true {
 				err := this.ReplicateStore(data)
 				if err != nil {
 					log.Fatalln("UpdatePolicyFromDS: Data replication failed", err)
 				}
 			}
+			this.Lck.Lock()
 			//set the new ModifiedIndex
 			this.Current_DS_Index = resultingIndex
 			for _, value := range data.KVPairs { //only one policy will be passed since we store only one currently in our PE
@@ -117,11 +116,9 @@ func getTheConsulAndDCpointers() {
 			log.Println("getTheConsulAndDCpointers: Got common.ALLDCs ", dcDataList)
 			break
 		}
-
 		<-time.After(2 * time.Second)
 	}
-	log.Println("getTheConsulAndDCpointers: ")
-
+	log.Println("getTheConsulAndDCpointers: returning")
 	return
 }
 
@@ -140,7 +137,6 @@ func (this *PE) BootStrapPolicy(config *common.ConsulConfig) {
 			if err != nil {
 				log.Fatalln("BootStrapPolicy: Data replication failed", err)
 			}
-
 			//Since this gosspier is the leader he will unsupress the framewokrs
 			log.Println("BootStrapPolicy: calling the Unsupress")
 			common.UnSupressFrameWorks()
