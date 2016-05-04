@@ -4,6 +4,7 @@ package policyengine
 import (
 	"encoding/json"
 	"log"
+	"sort"
 	"time"
 
 	"../common"
@@ -145,6 +146,7 @@ func GetValidDCsInfo() ([]string, []float64, bool) {
 			log.Println("GetValidDCsInfo: excluding the DC", key)
 		}
 	}
+	sort.Strings(dcDataSortedList)
 	log.Println("GetValidDCsInfo: Valid DC's  from which the Policy decision is made", dcDataSortedList)
 	dcDatasortedValues := make([]float64, len(dcDataSortedList))
 	return dcDataSortedList, dcDatasortedValues, true

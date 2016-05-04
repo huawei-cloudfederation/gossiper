@@ -48,22 +48,23 @@ func (this *RuleMinMax) GetnewDCarrangment(policydecision *PolicyDecision) bool 
 			continue
 		}
 
-		var cpuPercentage, memPercentage float64
+		//var cpuPercentage, memPercentage float64
 
 		if gossiperDcInfo.CPU == 0 || gossiperDcInfo.MEM == 0 || gossiperDcInfo.DISK == 0 {
 			log.Println("GetnewDCarrangment: Cannot apply policy since the total CPU or total MEM ot DISK in", gossiperDCName, "DC is nil")
 			//return false
 			continue
 		}
-		cpuPercentage = ((gossiperDcInfo.CPU - gossiperDcInfo.Ucpu) / gossiperDcInfo.CPU) * 100
-		memPercentage = ((gossiperDcInfo.MEM - gossiperDcInfo.Umem) / gossiperDcInfo.MEM) * 100
+		//cpuPercentage = ((gossiperDcInfo.CPU - gossiperDcInfo.Ucpu) / gossiperDcInfo.CPU) * 100
+		//memPercentage = ((gossiperDcInfo.MEM - gossiperDcInfo.Umem) / gossiperDcInfo.MEM) * 100
 
 		//TODO: not the right place to decide
 		/*if cpuPercentage >= this.RecosurceLimit || memPercentage >= this.RecosurceLimit || diskPercentage >= this.RecosurceLimit {
 			log.Println("IsCurrentDCWithInPolicyThershold: DC burst ", cpuPercentage, memPercentage, diskPercentage)
 			return false
 		}*/
-		policydecision.SortValue[index] = (cpuPercentage + memPercentage/2)
+		log.Println("GetnewDCarrangment: The cpupercentage is ", gossiperDcInfo.CPU, " for DC", gossiperDCName)
+		policydecision.SortValue[index] = (gossiperDcInfo.CPU)
 	}
 
 	sort.Sort(policydecision)
