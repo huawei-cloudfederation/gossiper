@@ -275,21 +275,23 @@ func GossipFrameworks(Name string) []byte {
 func CollectMasterData(G *Glib, MasterEP string) {
 
 	//First get the channels initialized
-	var FrameworkFrequency, ResourceFrequency time.Duration
-	FrameworkFrequency = 5
-	ResourceFrequency = 2
-	getFrameWorkCh := time.After(time.Second * FrameworkFrequency)
+	var ResourceFrequency time.Duration
+	//var FrameworkFrequency, ResourceFrequency time.Duration
+	//FrameworkFrequency = 1
+	ResourceFrequency = 1
+	//getFrameWorkCh := time.After(time.Second * FrameworkFrequency)
 	getMasterResourceCh := time.After(time.Second * ResourceFrequency)
 
 	for {
 		select {
-		case <-getFrameWorkCh:
-			getFrameWorkCh = time.After(time.Second * FrameworkFrequency)
-			GetListofFrameworks(G, MasterEP)
+		//case <-getFrameWorkCh:
+		//getFrameWorkCh = time.After(time.Second * FrameworkFrequency)
+		//GetListofFrameworks(G, MasterEP)
 
 		case <-getMasterResourceCh:
 			getMasterResourceCh = time.After(time.Second * ResourceFrequency)
 			GetMastersResources(G, MasterEP)
+			GetListofFrameworks(G, MasterEP)
 
 		}
 	}
