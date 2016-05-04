@@ -22,7 +22,9 @@ type RuleMinMax struct {
 func GetMatchingConsulDCInfo(dcName string) (*common.DC, bool) {
 
 	//dcDataList cant be null here
+	log.Println("GetMatchingConsulDCInfo: called")
 	localDCdata, ok := dcDataList[dcName]
+	log.Println("GetMatchingConsulDCInfo: Printing the DC maps info", localDCdata, dcName)
 	if true != ok {
 		log.Println("GetMatchingConsulDCInfo: there is no matching DC in common DC map for", dcName)
 		return nil, false
@@ -53,8 +55,8 @@ func (this *RuleMinMax) GetnewDCarrangment(policydecision *PolicyDecision) bool 
 			//return false
 			continue
 		}
-		cpuPercentage = ((gossiperDcInfo.Ucpu / gossiperDcInfo.CPU) * 100)
-		memPercentage = ((gossiperDcInfo.Umem / gossiperDcInfo.MEM) * 100)
+		cpuPercentage = ((gossiperDcInfo.CPU - gossiperDcInfo.Ucpu) / gossiperDcInfo.CPU) * 100
+		memPercentage = ((gossiperDcInfo.MEM - gossiperDcInfo.Umem) / gossiperDcInfo.MEM) * 100
 
 		//TODO: not the right place to decide
 		/*if cpuPercentage >= this.RecosurceLimit || memPercentage >= this.RecosurceLimit || diskPercentage >= this.RecosurceLimit {
@@ -65,7 +67,7 @@ func (this *RuleMinMax) GetnewDCarrangment(policydecision *PolicyDecision) bool 
 	}
 
 	sort.Sort(policydecision)
-	log.Println("")
+	log.Println("GetnewDCarrangment: Printing the policy dec struct", policydecision)
 	return true
 }
 
