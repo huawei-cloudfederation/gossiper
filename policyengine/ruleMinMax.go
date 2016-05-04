@@ -32,6 +32,11 @@ func GetMatchingConsulDCInfo(dcName string) (*common.DC, bool) {
 
 func (this *RuleMinMax) GetnewDCarrangment(policydecision *PolicyDecision) bool {
 
+	if len(policydecision.SortedDCName) == 0 || len(policydecision.SortValue) == 0 {
+		log.Println("GetnewDCarrangment: Cannot take a decision and the data set DC list is empty")
+		return false
+	}
+
 	for index, gossiperDCName := range policydecision.SortedDCName {
 
 		gossiperDcInfo, ok := GetMatchingConsulDCInfo(gossiperDCName)

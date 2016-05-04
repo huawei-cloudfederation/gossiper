@@ -75,6 +75,7 @@ func (this *PE) ProcessNewPolicy(key string, data []byte) (*Policy, error) {
 			ruleThershold, ok := tempPolicy.Rules[index].Content.(RuleInterface)
 			if ok {
 				ruleThershold.ApplyRule(nil)
+				//tempPolicy.Rules[index].Content.ApplyRule(nil)
 				log.Println("ProcessNewPolicy: The new Threshold is ", common.ResourceThresold, ruleThershold)
 			} else {
 				log.Println("ProcessNewPolicy: Unable to process a new RuleThreshold")
@@ -98,7 +99,7 @@ func (this *Policy) TakeDecision() bool {
 	defer common.ALLDCs.Lck.Unlock()
 	newDecision := NewPolicyDecision()
 
-	newDecision.SortedDCName, ok = GetValidDCsInfo()
+	newDecision.SortedDCName, newDecision.SortValue, ok = GetValidDCsInfo()
 	if ok != true {
 		log.Println("TakeDecision: Unable to take a decision sort on DC's failed")
 	}
@@ -129,11 +130,11 @@ func (this *Policy) TakeDecision() bool {
 //GetDCDataInSortedOrderByDcName
 // this will sort the dc names in
 // NewPolicyDecision
-func GetValidDCsInfo() ([]string, bool) {
+func GetValidDCsInfo() ([]string, []float64, bool) {
 
 	if len(dcDataList) == 0 {
 		log.Println("GetValidDCsInfo: the common DC maps is empty")
-		return nil, false
+		return nil, nil, false
 	}
 
 	dcDataSortedList := []string{}
@@ -143,6 +144,7 @@ func GetValidDCsInfo() ([]string, bool) {
 		}
 	}
 	log.Println("GetValidDCsInfo: Valid DC's  from which the Policy decision is made", dcDataSortedList)
-	return dcDataSortedList, true
+	dcDatasortedValues := make([]float64, len(dcDataSortedList))
+	return dcDataSortedList, dcDatasortedValues, true
 
 }

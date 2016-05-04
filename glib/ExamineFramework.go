@@ -51,7 +51,7 @@ func PerformIntersection() {
 func ExamineFramework() {
 	go func() {
 		for {
-			<-time.After(time.Second * 10)
+			<-time.After(time.Second * 1)
 			log.Printf("Dump AllFramework %v", AllFrameworks)
 			log.Printf("Dump CommonFramework %v", CommonFramework)
 		}
@@ -59,7 +59,7 @@ func ExamineFramework() {
 
 	for {
 		select {
-		case <-time.After(time.Second * 1):
+		case <-time.After(time.Microsecond * 100):
 			log.Printf("Performing intersection")
 			PerformIntersection()
 		}
