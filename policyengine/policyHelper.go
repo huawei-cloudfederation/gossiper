@@ -141,6 +141,8 @@ func GetValidDCsInfo() ([]string, []float64, bool) {
 	for key, val := range dcDataList {
 		if val.OutOfResource == false {
 			dcDataSortedList = append(dcDataSortedList, key)
+		} else {
+			log.Println("GetValidDCsInfo: excluding the DC", key)
 		}
 	}
 	log.Println("GetValidDCsInfo: Valid DC's  from which the Policy decision is made", dcDataSortedList)
