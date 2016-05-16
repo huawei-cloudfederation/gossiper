@@ -21,6 +21,7 @@ type DC struct {
 	Umem          float64 //Remaining Memory
 	Udisk         float64 //Remaining Disk
 	LastUpdate    time.Duration
+	IsActiveDC    bool
 }
 
 type alldcs struct {
@@ -81,6 +82,17 @@ func SupressFrameWorks() {
 	ToAnon.Lck.Unlock()
 
 	ToAnon.Ch <- true
+
+	// we set the IsActiveDC flag to TRUE
+	ALLDCs.Lck.Lock()
+	defer ALLDCs.Lck.Unlock()
+	_, available := ALLDCs.List[ThisDCName]
+	if !available {
+		log.Printf("SupressFrameWorks: DC information not available")
+		return
+	}
+
+	ALLDCs.List[ThisDCName].IsActiveDC = false
 	log.Println("SupressFrameWorks: returning")
 
 }
@@ -93,6 +105,17 @@ func UnSupressFrameWorks() {
 	ToAnon.Lck.Unlock()
 
 	ToAnon.Ch <- true
+
+	// we set the IsActiveDC flag to TRUE
+	ALLDCs.Lck.Lock()
+	defer ALLDCs.Lck.Unlock()
+	_, available := ALLDCs.List[ThisDCName]
+	if !available {
+		log.Printf("UnSupressFrameWorks: DC information not available")
+		return
+	}
+
+	ALLDCs.List[ThisDCName].IsActiveDC = true
 
 	log.Println("UnSupressFrameWorks: returning")
 }

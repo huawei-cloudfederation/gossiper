@@ -21,6 +21,7 @@ type StatusResponse struct {
 	CPU, MEM, DISK    float64 //Total CPU MEM and DISK
 	UCPU, UMEM, UDISK float64 //Used CPU MEM and DISK
 	OutOfResource     bool
+	IsActiveDC        bool
 }
 type LatencyResponse struct {
 	Name string
@@ -72,6 +73,7 @@ func (this *MainController) StatusAll() {
 	res.UMEM = dc.Umem
 	res.UDISK = dc.Udisk
 	res.OutOfResource = dc.OutOfResource
+	res.IsActiveDC = dc.IsActiveDC
 
 	resp_byte, err := json.MarshalIndent(&res, "", "  ")
 
