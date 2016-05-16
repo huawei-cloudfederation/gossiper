@@ -192,12 +192,15 @@ func CheckThreshold(G *Glib, dc *common.DC) {
 			isOOR = CheckPercentage(dc.DISK, dc.Udisk, common.ResourceThresold)
 		}
 	}
+	dc.OutOfResource = isOOR
 
+	// we need to gossip the dc info after the OutOfResource is set
 	if isOOR {
+		GossipDCInfo(G, dc)
 		GossipOOR(G)
 		common.TriggerPolicyCh <- true
 	}
-	dc.OutOfResource = isOOR
+
 	//Now Signal the Policy Engine to
 
 }

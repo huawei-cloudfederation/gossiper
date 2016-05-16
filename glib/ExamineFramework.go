@@ -53,7 +53,7 @@ func ExamineFramework() {
 		for {
 			<-time.After(time.Second * 1)
 			log.Printf("Dump AllFramework %v", AllFrameworks)
-			log.Printf("Dump CommonFramework %v", CommonFramework)
+			log.Printf("Dump CommonFramework %v", common.ToAnon.M)
 			common.ToAnon.Ch <- true
 		}
 	}()

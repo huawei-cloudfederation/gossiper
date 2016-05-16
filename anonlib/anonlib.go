@@ -173,14 +173,15 @@ func (annonClient *anonConnection) SendHeartBeat(conn net.Conn, flagChan chan bo
 func Run(inBindAddress string, inBindPort string) {
 
 	if inBindAddress != "" {
-		ServerAddr = strings.TrimRight(strings.TrimSpace(inBindAddress), ":5050")
+           ServerAddr=strings.Split(inBindAddress,":")[0]
+		//ServerAddr = strings.TrimRight(strings.TrimSpace(inBindAddress), ":5050")
 	}
 	if inBindPort != "" {
 		ServerPort = inBindPort
 	}
 	ServerPort = "5555"
 
-	log.Println("Starting the anonlib ")
+	log.Println("Starting the anonlib in new server ",ServerAddr)
 	log.Println("The master anon tcp server is", ServerAddr, ServerPort)
 
 	go ConnectToServer()

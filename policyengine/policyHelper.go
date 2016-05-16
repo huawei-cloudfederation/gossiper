@@ -135,6 +135,7 @@ func GetValidDCsInfo() ([]string, []float64, bool) {
 
 	if len(dcDataList) == 0 {
 		log.Println("GetValidDCsInfo: the common DC maps is empty")
+        common.SupressFrameWorks()
 		return nil, nil, false
 	}
 

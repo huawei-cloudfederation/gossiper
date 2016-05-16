@@ -35,7 +35,10 @@ func (d *delegate) NotifyMsg(buf []byte) {
 		if err != nil {
 			log.Printf("Delegate NotifyMsg() unmarshall FrameWorkMsG error %v", err)
 			return
+
 		}
+
+        log.Printf("A DC FrameWork Msg %v", msg)
 
 		//First check if the Daacenter entry is available otherwise remove it
 		/*
