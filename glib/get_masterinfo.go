@@ -15,6 +15,7 @@ import (
 var (
 	AllFrameworks   map[string]map[string]bool //Map of maps for all the frameworks
 	CommonFramework map[string]bool            //Common among all the framework
+	ThisGlib        *Glib                      //A Common this Glib pointer is required for us to reboradcast OOR message from Delegate
 	FrmWrkLck       sync.Mutex                 //Lock for centralized framework
 )
 
@@ -174,9 +175,8 @@ func GetMastersResources(G *Glib, MasterEP string) {
 
 	common.ALLDCs.Lck.Unlock()
 
-	GossipDCInfo(G, mydc)
-
 	CheckThreshold(G, mydc)
+	GossipDCInfo(G, mydc)
 
 	return
 
@@ -192,13 +192,16 @@ func CheckThreshold(G *Glib, dc *common.DC) {
 			isOOR = CheckPercentage(dc.DISK, dc.Udisk, common.ResourceThresold)
 		}
 	}
-	dc.OutOfResource = isOOR
+
+	dc.LastUpdate = time.Now().Unix()
 
 	// we need to gossip the dc info after the OutOfResource is set
-	if isOOR {
-		GossipDCInfo(G, dc)
-		GossipOOR(G)
+	if dc.OutOfResource != isOOR {
+		dc.OutOfResource = isOOR
+		dc.LastOOR = dc.LastUpdate
+		GossipOOR(G, dc, isOOR)
 		common.TriggerPolicyCh <- true
+		log.Printf("CheckThreshold() Gossiping OOR now")
 	}
 
 	//Now Signal the Policy Engine to
@@ -220,9 +223,9 @@ func CheckPercentage(MAX, USED float64, Threshold int) bool {
 
 }
 
-func GossipOOR(G *Glib) {
+func GossipOOR(G *Glib, dc *common.DC, isOOR bool) {
 	var msg Msg
-	oormsg := OutOfResourceMsG{OOR: true}
+	oormsg := OutOfResourceMsG{OOR: isOOR, TS: dc.LastOOR}
 
 	msg.Name = common.ThisDCName
 	msg.Type = "OOR"
@@ -233,7 +236,20 @@ func GossipOOR(G *Glib) {
 		log.Printf("Unable to broadcast DC information to other gosipers Marshall error")
 	} else {
 
+		G.BC.Prune(0) //First Clear the Queue
 		G.BroadCast(msg_bytes)
+	}
+
+}
+
+func ReGossipOOR(msg Msg) {
+
+	msg_bytes, err := json.Marshal(msg)
+	if err != nil {
+		log.Printf("Unable to broadcast DC information to other gosipers Marshall error")
+	} else {
+
+		ThisGlib.BroadCast(msg_bytes)
 	}
 
 }
@@ -278,24 +294,26 @@ func GossipFrameworks(Name string) []byte {
 func CollectMasterData(G *Glib, MasterEP string) {
 
 	//First get the channels initialized
-	var ResourceFrequency time.Duration
-	//var FrameworkFrequency, ResourceFrequency time.Duration
-	//FrameworkFrequency = 1
-	ResourceFrequency = 1
-	//getFrameWorkCh := time.After(time.Second * FrameworkFrequency)
-	getMasterResourceCh := time.After(time.Second * ResourceFrequency)
+	//var ResourceFrequency time.Duration
+	var FrameworkFrequency, ResourceFrequency time.Duration
+	ThisGlib = G
+	FrameworkFrequency = 2
+	ResourceFrequency = 1010
+	getFrameWorkCh := time.After(time.Second * FrameworkFrequency)
+	getMasterResourceCh := time.After(time.Millisecond * ResourceFrequency)
 
 	for {
 		select {
-		//case <-getFrameWorkCh:
-		//getFrameWorkCh = time.After(time.Second * FrameworkFrequency)
-		//GetListofFrameworks(G, MasterEP)
+		case <-getFrameWorkCh:
+			getFrameWorkCh = time.After(time.Second * FrameworkFrequency)
+			GetListofFrameworks(G, MasterEP)
 
 		case <-getMasterResourceCh:
-			getMasterResourceCh = time.After(time.Second * ResourceFrequency)
+			getMasterResourceCh = time.After(time.Millisecond * ResourceFrequency)
 			GetMastersResources(G, MasterEP)
-			GetListofFrameworks(G, MasterEP)
 
 		}
 	}
+
+	log.Fatalf("glib CollectMasterData() finsihed")
 }

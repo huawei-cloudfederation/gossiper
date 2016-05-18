@@ -58,7 +58,9 @@ func (G *Glib) Init() error {
 	G.config.AdvertiseAddr = G.AdvertiseAddr
 	G.config.AdvertisePort = G.BindPort
 	G.config.Name = G.Name
+	//	G.config.GossipInterval = 250 * time.Millisecond
 	G.config.Delegate = &delegate{glib: G}
+	//G.config.RetransmitMult = 8
 
 	G.list, err = ml.Create(G.config)
 
@@ -114,7 +116,7 @@ func (G *Glib) RecvMsg() {
 func (G *Glib) BroadCast(msg []byte) error {
 
 	G.BC.QueueBroadcast(NewBroadcast(msg))
-	log.Printf("Broadcasting %s", string(msg))
+	log.Printf("Broadcasting QSize=%d Msg:%s", G.BC.NumQueued(), string(msg))
 	return nil
 
 }
@@ -165,7 +167,6 @@ func Run(name string, myport int, isnew bool, others []string, masterEP string, 
 		log.Fatalf("Error unable to join other gossipers %v", err)
 	}
 
-
 	//Start the goroutine that will examine the recived q and process
 	go ExamineFramework()
 
@@ -186,4 +187,5 @@ func Run(name string, myport int, isnew bool, others []string, masterEP string, 
 		}
 	}
 	<-wait
+	log.Fatalf("glib.Run finished")
 }

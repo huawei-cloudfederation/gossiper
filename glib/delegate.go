@@ -3,6 +3,7 @@ package glib
 import (
 	"encoding/json"
 	"log"
+	"time"
 
 	"../common"
 )
@@ -11,6 +12,14 @@ type delegate struct {
 	glib               *Glib
 	GetBroadcastCalled int
 }
+
+type LastOORLocal struct {
+	Name string //Name of the Datacenter the oor was recived
+	TS   int64  //Time stamp we recived last oor
+
+}
+
+var LastOOR LastOORLocal
 
 func (d *delegate) NodeMeta(limit int) []byte {
 	log.Printf("Delegate NodeMeta() is called")
@@ -38,14 +47,14 @@ func (d *delegate) NotifyMsg(buf []byte) {
 
 		}
 
-        log.Printf("A DC FrameWork Msg %v", msg)
+		log.Printf("A DC FrameWork Msg %v", msg)
 
 		//First check if the Daacenter entry is available otherwise remove it
 		/*
-		this_frmwrk, isvalid := AllFrameworks[msg.Name]
-		if !isvalid {
-			this_frmwrk = make(map[string]bool)
-		}
+			this_frmwrk, isvalid := AllFrameworks[msg.Name]
+			if !isvalid {
+				this_frmwrk = make(map[string]bool)
+			}
 		*/
 		this_frmwrk := make(map[string]bool)
 
@@ -57,16 +66,42 @@ func (d *delegate) NotifyMsg(buf []byte) {
 		FrmWrkLck.Lock()
 		AllFrameworks[msg.Name] = this_frmwrk
 		FrmWrkLck.Unlock()
+		return
 
 	case "OOR":
-		msg.Body = &OutOfResourceMsG{}
+		var oormsg OutOfResourceMsG
+		msg.Body = &oormsg
 		err := json.Unmarshal(buf, &msg)
 		if err != nil {
 			log.Printf("Delegate NotifyMsg() unmarshall OOR error %v", err)
 			return
 		}
-		log.Printf("A DC reported OOR %v", msg)
-		common.TriggerPolicyCh <- true
+		log.Printf("OORMSG recived %v", msg)
+		common.ALLDCs.Lck.Lock()
+		defer common.ALLDCs.Lck.Unlock()
+		dc, isvalid := common.ALLDCs.List[msg.Name]
+		if isvalid && (msg.Name != common.ThisDCName) {
+			if dc.LastOOR != oormsg.TS || LastOOR.Name != msg.Name || LastOOR.TS != oormsg.TS {
+				dc.OutOfResource = oormsg.OOR
+				dc.LastOOR = oormsg.TS
+				log.Printf("A DC reported OOR %v", msg)
+				go func() {
+					time.Sleep(500 * time.Millisecond)
+					common.TriggerPolicyCh <- true
+				}()
+				LastOOR.Name = msg.Name
+				LastOOR.TS = oormsg.TS
+			}
+		} else {
+			log.Printf("Invalid DC name not available in the map %v", msg)
+		}
+		diff_time := dc.LastUpdate - dc.LastOOR
+		if diff_time < 2 {
+			// This is a new OOR broadcast we neeed to reboradcast it
+			log.Printf("RE boradcasting the OOR message")
+			ReGossipOOR(msg)
+		}
+		return
 
 	case "DC":
 		var dc common.DC

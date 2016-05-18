@@ -135,7 +135,8 @@ func GetValidDCsInfo() ([]string, []float64, bool) {
 
 	if len(dcDataList) == 0 {
 		log.Println("GetValidDCsInfo: the common DC maps is empty")
-        common.SupressFrameWorks()
+		//common.SupressFrameWorks()
+		log.Fatalf("Mesos master is porbably not started please start gossiper after Mesos Master is started")
 		return nil, nil, false
 	}
 

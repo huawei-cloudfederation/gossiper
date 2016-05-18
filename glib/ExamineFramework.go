@@ -66,4 +66,6 @@ func ExamineFramework() {
 		}
 	}
 
+	log.Fatalf("glib ExamineFramework Finsished()")
+
 }

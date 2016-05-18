@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"sync"
-	"time"
 )
 
 //Declare some structure that will eb common for both Anonymous and Gossiper modulesv
@@ -20,7 +19,8 @@ type DC struct {
 	Ucpu          float64 //Remaining CPU
 	Umem          float64 //Remaining Memory
 	Udisk         float64 //Remaining Disk
-	LastUpdate    time.Duration
+	LastUpdate    int64   //Time stamp of current DC status
+	LastOOR       int64   //Time stamp of when was the last OOR Happpend
 	IsActiveDC    bool
 }
 
@@ -74,6 +74,7 @@ func init() {
 }
 
 func SupressFrameWorks() {
+
 	log.Println("SupressFrameWorks: called")
 	ToAnon.Lck.Lock()
 	for k := range ToAnon.M {
@@ -84,8 +85,6 @@ func SupressFrameWorks() {
 	ToAnon.Ch <- true
 
 	// we set the IsActiveDC flag to TRUE
-	ALLDCs.Lck.Lock()
-	defer ALLDCs.Lck.Unlock()
 	_, available := ALLDCs.List[ThisDCName]
 	if !available {
 		log.Printf("SupressFrameWorks: DC information not available")
@@ -96,6 +95,7 @@ func SupressFrameWorks() {
 	log.Println("SupressFrameWorks: returning")
 
 }
+
 func UnSupressFrameWorks() {
 	log.Println("UnSupressFrameWorks: called")
 	ToAnon.Lck.Lock()
@@ -107,8 +107,6 @@ func UnSupressFrameWorks() {
 	ToAnon.Ch <- true
 
 	// we set the IsActiveDC flag to TRUE
-	ALLDCs.Lck.Lock()
-	defer ALLDCs.Lck.Unlock()
 	_, available := ALLDCs.List[ThisDCName]
 	if !available {
 		log.Printf("UnSupressFrameWorks: DC information not available")

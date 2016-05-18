@@ -15,7 +15,8 @@ type FrameWorkMsG struct {
 }
 
 type OutOfResourceMsG struct {
-	OOR bool //Is Datacenter Out of Resource
+	OOR bool  //Is Datacenter Out of Resource
+	TS  int64 //Time stamp of this OOR message
 }
 
 //NOt used currently
