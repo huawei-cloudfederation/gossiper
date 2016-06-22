@@ -2,7 +2,7 @@ package common
 
 import (
 	"fmt"
-	"log"
+	//"log"
 	"sync"
 )
 
@@ -40,14 +40,6 @@ type toanon struct {
 	Lck sync.Mutex
 }
 
-//global consul config
-type ConsulConfig struct {
-	IsLeader    bool
-	DCEndpoint  string
-	StorePreFix string
-	DCName      string
-}
-
 //Declare somecommon types that will be used accorss the goroutines
 var (
 	ToAnon             toanon    //Structure Sending messages to FedComms module via TCP client
@@ -70,55 +62,5 @@ func init() {
 	ResourceThresold = 100
 	RttOfPeerGossipers.List = make(map[string]int64)
 	fmt.Printf("Initalizeing Common")
-
-}
-
-func SupressFrameWorks() {
-
-	log.Println("SupressFrameWorks: called")
-	ToAnon.Lck.Lock()
-	for k := range ToAnon.M {
-		ToAnon.M[k] = true
-	}
-	ToAnon.Lck.Unlock()
-
-	ToAnon.Ch <- true
-
-	// we set the IsActiveDC flag to TRUE
-	_, available := ALLDCs.List[ThisDCName]
-	if !available {
-		log.Printf("SupressFrameWorks: DC information not available")
-		return
-	}
-
-	ALLDCs.List[ThisDCName].IsActiveDC = false
-	log.Println("SupressFrameWorks: returning")
-
-}
-
-func UnSupressFrameWorks() {
-	log.Println("UnSupressFrameWorks: called")
-	ToAnon.Lck.Lock()
-	for k := range ToAnon.M {
-		ToAnon.M[k] = false
-	}
-	ToAnon.Lck.Unlock()
-
-	ToAnon.Ch <- true
-
-	// we set the IsActiveDC flag to TRUE
-	_, available := ALLDCs.List[ThisDCName]
-	if !available {
-		log.Printf("UnSupressFrameWorks: DC information not available")
-		return
-	}
-
-	ALLDCs.List[ThisDCName].IsActiveDC = true
-
-	log.Println("UnSupressFrameWorks: returning")
-}
-
-func IsCommonMapEmpty() bool {
-	return (len(ToAnon.M) == 0)
 
 }

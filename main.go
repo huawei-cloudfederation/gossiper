@@ -11,7 +11,6 @@ import (
 	"./common"
 	"./glib"
 	"./httplib"
-	"./policyengine"
 )
 
 type GossiperConfig struct {
@@ -26,7 +25,6 @@ type GossiperConfig struct {
 	TCPPort        string //TCP port at which gossiper will bind and listen for anon module to connect to
 	GPort          int    //Port at which gossper should start
 	AdvertiseAddr  string //The advertised address of the gossiper so that other gossipers coudl connect
-	ConsulConfig   common.ConsulConfig
 }
 
 func NewGossiperConfig() GossiperConfig {
@@ -117,8 +115,6 @@ func main() {
 
 	go glib.Run(config.Name, config.GPort, isnew, []string{others}, config.MasterEndPoint, config.AdvertiseAddr)
 
-	//Start the Policy Engine
-	go policyengine.Run(&config.ConsulConfig)
 
 	//wait for ever
 	wait := make(chan struct{})
