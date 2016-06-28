@@ -1,0 +1,17 @@
+{
+   "Name": "1",
+   "City": "Schenzen",
+   "Country": "China",
+   "MasterEndPoint": "54.201.4.103:5050",
+   "ConfigType": "New",
+   "JoinEndPoint": "",
+   "TCPPort": "",
+   "GPort": 4400,
+   "AdvertiseAddr": "54.201.4.103",
+   "ConsulConfig": {
+     "IsLeader": true,
+     "DCEndpoint": "54.201.4.103:8500",
+     "StorePreFix": "Federa",
+     "DCName": "1"
+   }
+ }

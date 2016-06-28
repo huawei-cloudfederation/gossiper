@@ -2,7 +2,7 @@ package common
 
 import (
 	"fmt"
-	//"log"
+	"log"
 	"sync"
 )
 
@@ -64,3 +64,49 @@ func init() {
 	fmt.Printf("Initalizeing Common")
 
 }
+
+func SupressFrameWorks() {
+
+        log.Println("SupressFrameWorks: called")
+        ToAnon.Lck.Lock()
+        for k := range ToAnon.M {
+                ToAnon.M[k] = true
+        }
+        ToAnon.Lck.Unlock()
+
+        ToAnon.Ch <- true
+
+        // we set the IsActiveDC flag to TRUE
+        _, available := ALLDCs.List[ThisDCName]
+        if !available {
+                log.Printf("SupressFrameWorks: DC information not available")
+                return
+        }
+
+        ALLDCs.List[ThisDCName].IsActiveDC = false
+        log.Println("SupressFrameWorks: returning")
+
+}
+
+func UnSupressFrameWorks() {
+        log.Println("UnSupressFrameWorks: called")
+        ToAnon.Lck.Lock()
+        for k := range ToAnon.M {
+                ToAnon.M[k] = false
+        }
+        ToAnon.Lck.Unlock()
+
+        ToAnon.Ch <- true
+
+        // we set the IsActiveDC flag to TRUE
+        _, available := ALLDCs.List[ThisDCName]
+        if !available {
+                log.Printf("UnSupressFrameWorks: DC information not available")
+                return
+        }
+
+        ALLDCs.List[ThisDCName].IsActiveDC = true
+
+        log.Println("UnSupressFrameWorks: returning")
+}
+

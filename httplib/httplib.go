@@ -32,6 +32,27 @@ type MainController struct {
 	beego.Controller
 }
 
+type AllDCStatusresponse struct {
+        OutOfResource bool
+        Name          string
+        City          string
+        Country       string
+        Endpoint      string
+        CPU           float64
+        MEM           float64
+        DISK          float64
+        Ucpu          float64 //Remaining CPU
+        Umem          float64 //Remaining Memory
+        Udisk         float64 //Remaining Disk
+        LastUpdate    int64   //Time stamp of current DC status
+        LastOOR       int64   //Time stamp of when was the last OOR Happpend
+        IsActiveDC    bool
+}
+type PErequest struct{
+        UnSupress string `json:"UnSupress"`
+}
+
+
 func (this *MainController) LatencyAll() {
 	var resp []LatencyResponse
 	common.RttOfPeerGossipers.Lck.Lock()
@@ -108,6 +129,60 @@ func (this *MainController) BootStrap() {
 		return
 	}
 	this.Ctx.WriteString(string(resp_byte))
+}
+
+func (this *MainController) AllDCStatus() {
+	var res []AllDCStatusresponse
+
+	for _, v := range common.ALLDCs.List {
+	var dc AllDCStatusresponse
+
+	dc.Name = v.Name
+	dc.City = v.City
+	dc.Country = v.Country
+	dc.Endpoint = v.Endpoint
+	dc.CPU = v.CPU
+	dc.MEM = v.MEM
+	dc.DISK = v.DISK
+	dc.Ucpu = v.Ucpu
+	dc.Umem = v.Umem
+	dc.Udisk = v.Udisk
+	dc.OutOfResource = v.OutOfResource
+	dc.IsActiveDC = v.IsActiveDC
+	dc.LastUpdate = v.LastUpdate
+	dc.LastOOR = v.LastOOR
+	res = append(res, dc)
+	}
+
+	resp_byte, err := json.MarshalIndent(&res, "", "  ")
+
+	if err != nil {
+
+		log.Printf("Error Marshalling the response")
+		this.Ctx.WriteString("Status Failed")
+		return
+	}
+
+	this.Ctx.WriteString(string(resp_byte))
+	log.Printf("HTTP Status %s", string(resp_byte))
+}
+
+
+func (this *MainController) UnSupress(){
+	var data  PErequest
+	this.Data["UnSupress"] = this.Ctx.Input.Param(":UnSupress")
+	
+	err := json.Unmarshal(this.Ctx.Input.RequestBody,&data)
+	if err != nil {
+        	this.Ctx.Output.Body(this.Ctx.Input.RequestBody)
+		log.Println(this.Ctx.Input.RequestBody)
+        return
+    }
+	if data.UnSupress == "true" {
+		common.UnSupressFrameWorks()
+	}else if data.UnSupress == "false" {
+		common.SupressFrameWorks()
+	}
 }
 
 func (this *MainController) Healthz() {
