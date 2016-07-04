@@ -25,6 +25,7 @@ type GossiperConfig struct {
 	TCPPort        string //TCP port at which gossiper will bind and listen for anon module to connect to
 	GPort          int    //Port at which gossper should start
 	AdvertiseAddr  string //The advertised address of the gossiper so that other gossipers coudl connect
+	PolicyEndPoint string
 }
 
 func NewGossiperConfig() GossiperConfig {
@@ -32,6 +33,7 @@ func NewGossiperConfig() GossiperConfig {
 		MasterEndPoint: ":5050",
 		ConfigType:     "NEW",
 		JoinEndPoint:   "",
+		PolicyEndPoint:   "",
 		LogFile:        "stderr",
 		HTTPPort:       "8080",
 		TCPPort:        "5555",
@@ -95,6 +97,7 @@ func main() {
 	common.ThisCountry = config.Country
 	common.ThisDCName = config.Name
 	common.ThisEP = fmt.Sprintf("http://%s:%s/v1/", config.AdvertiseAddr, config.HTTPPort)
+	common.PolicyEP = config.PolicyEndPoint
 
 	//Start Anon TCP server module
 	go anonlib.Run(config.MasterEndPoint, config.TCPPort)

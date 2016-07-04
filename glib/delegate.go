@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"time"
+	"fmt"
 
 	"../common"
 )
@@ -80,14 +81,21 @@ func (d *delegate) NotifyMsg(buf []byte) {
 		common.ALLDCs.Lck.Lock()
 		defer common.ALLDCs.Lck.Unlock()
 		dc, isvalid := common.ALLDCs.List[msg.Name]
+		fmt.Println("inside oor common.ThisDCName\n",common.ThisDCName)
+		fmt.Println("inside oor msg.Name\n",msg.Name)
+		fmt.Println("inside oor isvalid\n",isvalid)
+//		msg.Name = "4"
 		if isvalid && (msg.Name != common.ThisDCName) {
+			fmt.Println("inside isvalid\n")
 			if dc.LastOOR != oormsg.TS || LastOOR.Name != msg.Name || LastOOR.TS != oormsg.TS {
+				fmt.Println("inside \n")
 				dc.OutOfResource = oormsg.OOR
 				dc.LastOOR = oormsg.TS
 				log.Printf("A DC reported OOR %v", msg)
 				go func() {
 					time.Sleep(500 * time.Millisecond)
-					common.TriggerPolicyCh <- true
+					dat := "true"
+					common.TriggerPolicyCh(dat) 
 				}()
 				LastOOR.Name = msg.Name
 				LastOOR.TS = oormsg.TS

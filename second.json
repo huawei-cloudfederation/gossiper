@@ -1,7 +1,0 @@
-{
-		"Name": "Second",
-		"HTTPPort" : "8081",
-			"ConfigType": "Old",
-				"GPort": 4401,
-				"JoinEndPoint" : "localhost:4400"
-}

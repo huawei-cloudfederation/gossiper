@@ -22,4 +22,5 @@ func init() {
 	beego.Router("/healthz/", &MainController{}, "get:Healthz")
 	beego.Router("/v1/LATENCY/", &MainController{}, "get:LatencyAll")
 	beego.Router("/v1/UNSUPRESS/", &MainController{}, "post:UnSupress")
+	beego.Router("/v1/THRESHHOLD/", &MainController{}, "post:GetThreshhold")
 }

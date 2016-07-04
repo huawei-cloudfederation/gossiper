@@ -1,7 +1,0 @@
-{
-		"Name": "fourth",
-		"HTTPPort" : "8083",
-			"ConfigType": "Old",
-				"GPort": 4403,
-				"JoinEndPoint" : "localhost:4400"
-}

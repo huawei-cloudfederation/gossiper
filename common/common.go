@@ -4,6 +4,11 @@ import (
 	"fmt"
 	"log"
 	"sync"
+	"net/http"
+        "bytes"
+         "encoding/json"
+	  "io"
+        "os"
 )
 
 //Declare some structure that will eb common for both Anonymous and Gossiper modulesv
@@ -40,6 +45,13 @@ type toanon struct {
 	Lck sync.Mutex
 }
 
+type Triggerrequest struct{
+        Policy string
+}
+
+type GetThreshhold struct{
+        Threshhold string
+}
 //Declare somecommon types that will be used accorss the goroutines
 var (
 	ToAnon             toanon    //Structure Sending messages to FedComms module via TCP client
@@ -49,15 +61,14 @@ var (
 	ThisCity           string    //This Datacenters City
 	ThisCountry        string    //This Datacentes Country
 	ResourceThresold   int       //Threshold value of any resource (CPU, MEM or Disk) after which we need to broadcast OOR
-	TriggerPolicyCh    chan bool //Polcy Engine will listen in this Channel
 	RttOfPeerGossipers rttbwGossipers
+	PolicyEP string
 )
 
 func init() {
 
 	ToAnon.M = make(map[string]bool)
 	ToAnon.Ch = make(chan bool)
-	TriggerPolicyCh = make(chan bool)
 	ALLDCs.List = make(map[string]*DC)
 	ResourceThresold = 100
 	RttOfPeerGossipers.List = make(map[string]int64)
@@ -108,5 +119,17 @@ func UnSupressFrameWorks() {
         ALLDCs.List[ThisDCName].IsActiveDC = true
 
         log.Println("UnSupressFrameWorks: returning")
+}
+
+func TriggerPolicyCh(dat string){
+        var resp Triggerrequest
+        resp.Policy = dat
+         b := new(bytes.Buffer)
+         json.NewEncoder(b).Encode(resp)
+
+        fmt.Println("TriggerPolicyCh called in gossiper:\n")
+	url := "http://" + PolicyEP + "/v1/TRIGGERPOLICY"
+        res, _ := http.Post(url, "application/json; charset=utf-8",b)
+        io.Copy(os.Stdout, res.Body)
 }
 
