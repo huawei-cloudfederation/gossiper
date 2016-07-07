@@ -7,6 +7,7 @@ import (
 	"github.com/astaxie/beego"
 
 	"../common"
+	"strconv"
 )
 
 type BootStrapResponse struct {
@@ -30,6 +31,29 @@ type LatencyResponse struct {
 
 type MainController struct {
 	beego.Controller
+}
+
+type AllDCStatusresponse struct {
+        OutOfResource bool
+        Name          string
+        City          string
+        Country       string
+        Endpoint      string
+        CPU           float64
+        MEM           float64
+        DISK          float64
+        Ucpu          float64 //Remaining CPU
+        Umem          float64 //Remaining Memory
+        Udisk         float64 //Remaining Disk
+        LastUpdate    int64   //Time stamp of current DC status
+        LastOOR       int64   //Time stamp of when was the last OOR Happpend
+        IsActiveDC    bool
+}
+type PErequest struct{
+        UnSupress string `json:"UnSupress"`
+}
+type SetThreshhold struct{
+        Threshhold  string
 }
 
 func (this *MainController) LatencyAll() {
@@ -108,6 +132,86 @@ func (this *MainController) BootStrap() {
 		return
 	}
 	this.Ctx.WriteString(string(resp_byte))
+}
+
+func (this *MainController) AllDCStatus() {
+	var res []AllDCStatusresponse
+
+	for _, v := range common.ALLDCs.List {
+	var dc AllDCStatusresponse
+
+	dc.Name = v.Name
+	dc.City = v.City
+	dc.Country = v.Country
+	dc.Endpoint = v.Endpoint
+	dc.CPU = v.CPU
+	dc.MEM = v.MEM
+	dc.DISK = v.DISK
+	dc.Ucpu = v.Ucpu
+	dc.Umem = v.Umem
+	dc.Udisk = v.Udisk
+	dc.OutOfResource = v.OutOfResource
+	dc.IsActiveDC = v.IsActiveDC
+	dc.LastUpdate = v.LastUpdate
+	dc.LastOOR = v.LastOOR
+	res = append(res, dc)
+	}
+
+	resp_byte, err := json.MarshalIndent(&res, "", "  ")
+
+	if err != nil {
+
+		log.Printf("Error Marshalling the response")
+		this.Ctx.WriteString("Status Failed")
+		return
+	}
+
+	this.Ctx.WriteString(string(resp_byte))
+	log.Printf("HTTP Status %s", string(resp_byte))
+}
+
+func (this *MainController) UnSupress(){
+        var data  PErequest
+        log.Println("From SupresF called")
+        this.Data["UnSupress"] = this.Ctx.Input.Param(":UnSupress")
+
+        err := json.Unmarshal(this.Ctx.Input.RequestBody,&data)
+        log.Println(string(this.Ctx.Input.RequestBody),"::",data)
+        if err != nil {
+		this.Ctx.Output.Body(this.Ctx.Input.RequestBody)
+                log.Println(string(this.Ctx.Input.RequestBody),"::",data)
+                log.Println("Cannot Unmarshal\n",err)
+                 return
+        }
+		this.Ctx.Output.Body(this.Ctx.Input.RequestBody)
+                log.Println(string(this.Ctx.Input.RequestBody),"::",data)
+	
+        if data.UnSupress == "false" {
+                log.Println(string(this.Ctx.Input.RequestBody),"::",data)
+                common.UnSupressFrameWorks()
+        }else if data.UnSupress == "true" {
+                common.SupressFrameWorks()
+        }
+}
+
+func (this *MainController) GetThreshhold(){
+        var data  SetThreshhold
+        log.Println("From Threshhold called")
+        this.Data["Threshhold"] = this.Ctx.Input.Param(":Threshhold")
+
+        err := json.Unmarshal(this.Ctx.Input.RequestBody,&data)
+        log.Println(string(this.Ctx.Input.RequestBody),"::",data)
+        if err != nil {
+                this.Ctx.Output.Body(this.Ctx.Input.RequestBody)
+                log.Println(string(this.Ctx.Input.RequestBody),"::",data)
+                log.Println("Cannot Unmarshal\n",err)
+                 return
+        }
+                this.Ctx.Output.Body(this.Ctx.Input.RequestBody)
+                log.Println(string(this.Ctx.Input.RequestBody),"::",data)
+
+	common.ResourceThresold,_ = strconv.Atoi(data.Threshhold)
+
 }
 
 func (this *MainController) Healthz() {

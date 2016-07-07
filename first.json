@@ -1,8 +1,0 @@
-{
-		"Name": "dc1_eu",
-			"ConfigType": "New",
-				"GPort": 4400,
-				"MasterEndPoint" : "10.145.208.117:5050",
-				"consulConfig": 
-				{ "isLeader" : true, "DCEndpoint" : "52.59.253.150:8500", "StorePreFix": "Federa" }			
-}

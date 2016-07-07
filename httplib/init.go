@@ -14,9 +14,13 @@ func init() {
 		ExposeHeaders:    []string{"Content-Length", "Access-Control-Allow-Origin"},
 		AllowCredentials: true,
 	}))
+	beego.BConfig.CopyRequestBody = true
 
 	beego.Router("/v1/BOOTSTRAP/", &MainController{}, "get:BootStrap")
+	beego.Router("/v1/ALLDCSTATUS/", &MainController{}, "get:AllDCStatus")
 	beego.Router("/v1/STATUS/", &MainController{}, "get:StatusAll")
 	beego.Router("/healthz/", &MainController{}, "get:Healthz")
 	beego.Router("/v1/LATENCY/", &MainController{}, "get:LatencyAll")
+	beego.Router("/v1/UNSUPRESS/", &MainController{}, "post:UnSupress")
+	beego.Router("/v1/THRESHHOLD/", &MainController{}, "post:GetThreshhold")
 }
