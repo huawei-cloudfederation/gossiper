@@ -200,8 +200,7 @@ func CheckThreshold(G *Glib, dc *common.DC) {
 		dc.OutOfResource = isOOR
 		dc.LastOOR = dc.LastUpdate
 		GossipOOR(G, dc, isOOR)
-		dat := "true"
-		common.TriggerPolicyCh(dat)
+		common.TriggerPolicyCh(true)
 		log.Printf("CheckThreshold() Gossiping OOR now")
 	}
 

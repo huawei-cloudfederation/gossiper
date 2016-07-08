@@ -94,8 +94,7 @@ func (d *delegate) NotifyMsg(buf []byte) {
 				log.Printf("A DC reported OOR %v", msg)
 				go func() {
 					time.Sleep(500 * time.Millisecond)
-					dat := "true"
-					common.TriggerPolicyCh(dat) 
+					common.TriggerPolicyCh(true) 
 				}()
 				LastOOR.Name = msg.Name
 				LastOOR.TS = oormsg.TS

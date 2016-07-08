@@ -46,12 +46,9 @@ type toanon struct {
 }
 
 type Triggerrequest struct{
-        Policy string
+        Policy bool
 }
 
-type GetThreshhold struct{
-        Threshhold string
-}
 //Declare somecommon types that will be used accorss the goroutines
 var (
 	ToAnon             toanon    //Structure Sending messages to FedComms module via TCP client
@@ -121,9 +118,9 @@ func UnSupressFrameWorks() {
         log.Println("UnSupressFrameWorks: returning")
 }
 
-func TriggerPolicyCh(dat string){
+func TriggerPolicyCh(data bool){
         var resp Triggerrequest
-        resp.Policy = dat
+        resp.Policy = data
          b := new(bytes.Buffer)
          json.NewEncoder(b).Encode(resp)
 

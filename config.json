@@ -2,16 +2,16 @@
    "Name": "1",
    "City": "Schezan",
    "Country": "China",
-   "MasterEndPoint": "54.191.139.104:5050",
+   "MasterEndPoint": "54.218.111.79:5050",
    "ConfigType": "New",
    "JoinEndPoint": "",
    "TCPPort": "",
    "GPort": 4400,
-   "AdvertiseAddr": "54.191.139.104",
-   "PolicyEndPoint": "54.191.139.104:8081",	
+   "AdvertiseAddr": "54.218.111.79",
+   "PolicyEndPoint": "54.218.111.79:8081",
    "ConsulConfig": {
      "IsLeader": true,
-     "DCEndpoint": "54.191.139.104:8500",
+     "DCEndpoint": "54.218.111.79:8500",
      "StorePreFix": "Federa",
      "DCName": "1"
    }

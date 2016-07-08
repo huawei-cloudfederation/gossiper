@@ -7,7 +7,7 @@ import (
 	"github.com/astaxie/beego"
 
 	"../common"
-	"strconv"
+//	"strconv"
 )
 
 type BootStrapResponse struct {
@@ -33,27 +33,11 @@ type MainController struct {
 	beego.Controller
 }
 
-type AllDCStatusresponse struct {
-        OutOfResource bool
-        Name          string
-        City          string
-        Country       string
-        Endpoint      string
-        CPU           float64
-        MEM           float64
-        DISK          float64
-        Ucpu          float64 //Remaining CPU
-        Umem          float64 //Remaining Memory
-        Udisk         float64 //Remaining Disk
-        LastUpdate    int64   //Time stamp of current DC status
-        LastOOR       int64   //Time stamp of when was the last OOR Happpend
-        IsActiveDC    bool
-}
 type PErequest struct{
-        UnSupress string `json:"UnSupress"`
+        UnSupress bool `json:"UnSupress"`
 }
 type SetThreshhold struct{
-        Threshhold  string
+        Threshhold int 
 }
 
 func (this *MainController) LatencyAll() {
@@ -135,10 +119,10 @@ func (this *MainController) BootStrap() {
 }
 
 func (this *MainController) AllDCStatus() {
-	var res []AllDCStatusresponse
+	var res []common.DC
 
 	for _, v := range common.ALLDCs.List {
-	var dc AllDCStatusresponse
+	var dc common.DC 
 
 	dc.Name = v.Name
 	dc.City = v.City
@@ -186,10 +170,10 @@ func (this *MainController) UnSupress(){
 		this.Ctx.Output.Body(this.Ctx.Input.RequestBody)
                 log.Println(string(this.Ctx.Input.RequestBody),"::",data)
 	
-        if data.UnSupress == "false" {
+        if data.UnSupress {
                 log.Println(string(this.Ctx.Input.RequestBody),"::",data)
                 common.UnSupressFrameWorks()
-        }else if data.UnSupress == "true" {
+        }else {
                 common.SupressFrameWorks()
         }
 }
@@ -210,7 +194,8 @@ func (this *MainController) GetThreshhold(){
                 this.Ctx.Output.Body(this.Ctx.Input.RequestBody)
                 log.Println(string(this.Ctx.Input.RequestBody),"::",data)
 
-	common.ResourceThresold,_ = strconv.Atoi(data.Threshhold)
+	//common.ResourceThresold,_ = strconv.Atoi(data.Threshhold)
+	common.ResourceThresold = data.Threshhold
 
 }
 
