@@ -84,7 +84,7 @@ func SupressFrameWorks() {
 
         ToAnon.Ch <- true
 
-        // we set the IsActiveDC flag to TRUE
+        // we set the IsActiveDC flag to FALSE
         _, available := ALLDCs.List[ThisDCName]
         if !available {
                 log.Printf("SupressFrameWorks: DC information not available")
@@ -122,9 +122,12 @@ func TriggerPolicyCh(data bool){
         var resp Triggerrequest
         resp.Policy = data
          b := new(bytes.Buffer)
-         json.NewEncoder(b).Encode(resp)
+         err :=  json.NewEncoder(b).Encode(resp)
+	 if err != nil {
+                 log.Println("Error Marshalling the response")
+                return
+        }
 
-        fmt.Println("TriggerPolicyCh called in gossiper:\n")
 	url := "http://" + PolicyEP + "/v1/TRIGGERPOLICY"
         res, _ := http.Post(url, "application/json; charset=utf-8",b)
         io.Copy(os.Stdout, res.Body)

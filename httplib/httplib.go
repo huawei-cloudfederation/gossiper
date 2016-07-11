@@ -156,45 +156,35 @@ func (this *MainController) AllDCStatus() {
 
 func (this *MainController) UnSupress(){
         var data  PErequest
-        log.Println("From SupresF called")
         this.Data["UnSupress"] = this.Ctx.Input.Param(":UnSupress")
 
         err := json.Unmarshal(this.Ctx.Input.RequestBody,&data)
-        log.Println(string(this.Ctx.Input.RequestBody),"::",data)
         if err != nil {
 		this.Ctx.Output.Body(this.Ctx.Input.RequestBody)
-                log.Println(string(this.Ctx.Input.RequestBody),"::",data)
                 log.Println("Cannot Unmarshal\n",err)
                  return
         }
 		this.Ctx.Output.Body(this.Ctx.Input.RequestBody)
-                log.Println(string(this.Ctx.Input.RequestBody),"::",data)
 	
-        if data.UnSupress {
-                log.Println(string(this.Ctx.Input.RequestBody),"::",data)
+        if data.UnSupress == true {
                 common.UnSupressFrameWorks()
-        }else {
+        }else if data.UnSupress == false {
                 common.SupressFrameWorks()
         }
 }
 
 func (this *MainController) GetThreshhold(){
         var data  SetThreshhold
-        log.Println("From Threshhold called")
         this.Data["Threshhold"] = this.Ctx.Input.Param(":Threshhold")
 
         err := json.Unmarshal(this.Ctx.Input.RequestBody,&data)
-        log.Println(string(this.Ctx.Input.RequestBody),"::",data)
         if err != nil {
                 this.Ctx.Output.Body(this.Ctx.Input.RequestBody)
-                log.Println(string(this.Ctx.Input.RequestBody),"::",data)
                 log.Println("Cannot Unmarshal\n",err)
                  return
         }
                 this.Ctx.Output.Body(this.Ctx.Input.RequestBody)
-                log.Println(string(this.Ctx.Input.RequestBody),"::",data)
 
-	//common.ResourceThresold,_ = strconv.Atoi(data.Threshhold)
 	common.ResourceThresold = data.Threshhold
 
 }

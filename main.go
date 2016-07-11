@@ -33,7 +33,7 @@ func NewGossiperConfig() GossiperConfig {
 		MasterEndPoint: ":5050",
 		ConfigType:     "NEW",
 		JoinEndPoint:   "",
-		PolicyEndPoint:   "",
+		PolicyEndPoint: "",
 		LogFile:        "stderr",
 		HTTPPort:       "8080",
 		TCPPort:        "5555",
@@ -117,7 +117,6 @@ func main() {
 	}
 
 	go glib.Run(config.Name, config.GPort, isnew, []string{others}, config.MasterEndPoint, config.AdvertiseAddr)
-
 
 	//wait for ever
 	wait := make(chan struct{})
